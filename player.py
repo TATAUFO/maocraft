@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity = 3  # 物体的移动速度
 
         self.health_font = pygame.font.Font(None, 20)
-        self.health = 100
+        self.health = 100.0
 
 
 
@@ -36,6 +36,8 @@ class Player(pygame.sprite.Sprite):
             self.frames.append(frames_row)
 
     def update(self, *args, **kwargs):
+
+        collisions = kwargs["collisions"]
         self.col_index_f += 0.05
         if self.col_index_f >= 4:
             self.col_index_f = 0
@@ -57,8 +59,10 @@ class Player(pygame.sprite.Sprite):
             self.row_index = 0
 
         image = self.frames[self.row_index][int(self.col_index_f)]
-        
-        text = self.health_font.render(str(self.health), True, (255, 255, 255))
+
+        self.health -= (len(collisions) - 1)/10 if len(collisions) > 1 else 0
+        self.health = 0 if self.health < 0 else self.health
+        text = self.health_font.render(str(int(self.health)), True, (255, 255, 255))
 
         current_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
         current_surface.blit(image, (0, 0))

@@ -57,17 +57,19 @@ class Mao:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
+            collisions = pygame.sprite.spritecollide(player, all_sprites, False)
+
             # 在精灵组中调用update方法更新物体的位置和图像
-            all_sprites.update(target=player.rect.topleft)
+            all_sprites.update(target=player.rect.topleft, collisions = collisions)
             # 画出背景
             self.screen.blit(background, (0,0))
             # 在精灵组中调用draw方法绘制物体到屏幕上
             all_sprites.draw(self.screen)
             pygame.display.flip()
             
-            collisions = pygame.sprite.spritecollide(player, all_sprites, False)
             if len(collisions) > 1 and skill_display_count == 0:
-                # collision_sound.play()
+                collision_sound.play()
                 player_pos = player.rect.topleft
                 fire = Fire(player_pos[0], player_pos[1])
                 skill_display_count = 30
