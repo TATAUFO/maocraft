@@ -17,7 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity = 3  # 物体的移动速度
 
         self.health_font = pygame.font.Font(None, 20)
-        self.health = 100.0
+        self.health = 200.0
 
 
 

@@ -1,4 +1,6 @@
 import pygame
+import random
+
 
 # 创建一个自定义的物体类，继承自pygame.sprite.Sprite
 class Monster(pygame.sprite.Sprite):
@@ -15,7 +17,8 @@ class Monster(pygame.sprite.Sprite):
         self.velocity = v  # 物体的移动速度
         self.direct_limit = dl
         self.direct_change_cnt = 0 # 为防止总在变方向
-
+        self.health_font = pygame.font.Font(None, 20)
+        self.health = random.randint(30,100)
 
     def load_frames(self):
         # 加载原图
@@ -73,6 +76,14 @@ class Monster(pygame.sprite.Sprite):
                         self.rect.y += self.velocity
                         self.row_index = 0
 
-        self.image = self.frames[self.row_index][int(self.col_index_f)]
+        image = self.frames[self.row_index][int(self.col_index_f)]
 
+        # self.health -= (len(collisions) - 1)/10 if len(collisions) > 1 else 0
+        # self.health = 0 if self.health < 0 else self.health
+        text = self.health_font.render(str(int(self.health)), True, (255, 255, 255))
+
+        current_surface = pygame.Surface(image.get_size(), pygame.SRCALPHA)
+        current_surface.blit(image, (0, 0))
+        current_surface.blit(text, (0,0))
+        self.image = current_surface
 
