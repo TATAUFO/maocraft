@@ -43,7 +43,7 @@ class Mao:
         all_sprites = pygame.sprite.Group()
         all_sprites.add(player)
 
-        for _ in range(10):
+        for _ in range(INIT_MONSTER_NUM):
             monster = self.create_monster()
             all_sprites.add(monster)
 
@@ -83,8 +83,10 @@ class Mao:
 
 
             # 百分之一的可能添加怪兽
-            if random.randint(0,100) == 10:
-                all_sprites.add(self.create_monster()) 
+            
+            if len(all_sprites) < MAX_MONSTER_NUM:
+                if random.randint(0,MONSTER_CREATE_RATIO) == 10:
+                    all_sprites.add(self.create_monster()) 
             # ESC 退出
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
