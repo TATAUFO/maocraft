@@ -32,11 +32,31 @@ class Mao:
         velocity = random.randint(1,3)
         direct_limit = random.randint(20,50)
         return Monster(init_x, init_y, velocity, direct_limit)
+    
+    def create_gameover_text(self):
+        # 设置字体和文字内容
+        font_size = 72
+        font = pygame.font.Font(None, font_size)
+        text = "Game Over!"
+
+        # 渲染文字
+        text_render = font.render(text, True, (255, 255, 255))  # 白色文字
+
+        # 获取文字的矩形
+        text_rect = text_render.get_rect()
+
+        # 设置文字的位置
+        text_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)  # 文字居中
+
+        return text_render, text_rect
         
     def run(self):
         # 创建背景
         background = self.create_background()
         collision_sound = pygame.mixer.Sound("./resource/audios/sound/baozha.mp3")
+
+        # 创建失败后的提示文字
+        text_render, text_rect = self.create_gameover_text()
 
         player = Player(50,50)
         # 创建一个精灵组，并将物体添加到精灵组中
@@ -58,35 +78,41 @@ class Mao:
                 if event.type == pygame.QUIT:
                     running = False
 
-            collisions = pygame.sprite.spritecollide(player, all_sprites, False)
 
-            # 在精灵组中调用update方法更新物体的位置和图像
-            all_sprites.update(target=player.rect.topleft, collisions = collisions)
-            # 画出背景
-            self.screen.blit(background, (0,0))
-            # 在精灵组中调用draw方法绘制物体到屏幕上
-            all_sprites.draw(self.screen)
+
+            if player.health <= 0:
+                self.screen.blit(text_render, text_rect)
+            else:
+                collisions = pygame.sprite.spritecollide(player, all_sprites, False)
+
+                # 在精灵组中调用update方法更新物体的位置和图像
+                all_sprites.update(target=player.rect.topleft, collisions = collisions)
+                # 画出背景
+                self.screen.blit(background, (0,0))
+                # 在精灵组中调用draw方法绘制物体到屏幕上
+                all_sprites.draw(self.screen)
+
+                if len(collisions) > 1 and skill_display_count == 0:
+                    collision_sound.play()
+                    player_pos = player.rect.topleft
+                    fire = Fire(player_pos[0], player_pos[1])
+                    skill_display_count = 30
+                    all_sprites.add(fire)
+
+                if skill_display_count > 0:
+                    skill_display_count -= 1
+                if skill_display_count == 0 and fire != None:
+                    all_sprites.remove(fire)
+                    fire.kill()
+
+                # 百分之一的可能添加怪兽
+                if len(all_sprites) < MAX_MONSTER_NUM:
+                    if random.randint(0,MONSTER_CREATE_RATIO) == 10:
+                        all_sprites.add(self.create_monster()) 
+
             pygame.display.flip()
             
-            if len(collisions) > 1 and skill_display_count == 0:
-                collision_sound.play()
-                player_pos = player.rect.topleft
-                fire = Fire(player_pos[0], player_pos[1])
-                skill_display_count = 30
-                all_sprites.add(fire)
 
-            if skill_display_count > 0:
-                skill_display_count -= 1
-            if skill_display_count == 0 and fire != None:
-                all_sprites.remove(fire)
-                fire.kill()
-
-
-            # 百分之一的可能添加怪兽
-            
-            if len(all_sprites) < MAX_MONSTER_NUM:
-                if random.randint(0,MONSTER_CREATE_RATIO) == 10:
-                    all_sprites.add(self.create_monster()) 
             # ESC 退出
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
